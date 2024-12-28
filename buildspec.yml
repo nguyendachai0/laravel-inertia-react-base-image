@@ -5,23 +5,21 @@ phases:
     on-failure: ABORT 
     runtime-versions:
       php: 8.2
-    commands:
-      - echo 'install'
-
   pre_build:
     on-failure: ABORT 
     commands:
-      - echo 'pre_build'
-    
+      - echo 'Logging into Amazon ECR ...'
+      - aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin $REPOSITORY
   build:
     on-failure: ABORT 
     commands:
-      - echo 'build'
-    
+      - docker build -t $IMAGE .
+      - docker tag $IMAGE:$IMAGE_TAG $REPOSITORY/$IMAGE:$IMAGE_TAG    
   post_build:
     on-failure: ABORT 
     commands:
-      - echo 'post_build'
+      - docker images ls -a
+      - docker push $REPOSITORY/$IMAGE:$IMAGE_TAG
     
     
 
